@@ -5,16 +5,16 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Enums/WeaponType.h"
-#include "LocomotionComponent.generated.h"
+#include "AnimationControlComponent.generated.h"
 
 
 UCLASS( Blueprintable, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class ADVANCELOCOMOTIONSYSTEM_API ULocomotionComponent : public UActorComponent
+class ADVANCELOCOMOTIONSYSTEM_API UAnimationControlComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:	
-	ULocomotionComponent();
+	UAnimationControlComponent();
 	
 	UFUNCTION(BlueprintCallable)
 	void InitializeLocomotionComponent();

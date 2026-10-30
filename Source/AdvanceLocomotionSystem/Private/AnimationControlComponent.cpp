@@ -1,15 +1,15 @@
-#include "LocomotionComponent.h"
+#include "AnimationControlComponent.h"
 
 #include "GameFramework/Character.h"
 #include "Interfaces/LocomotionInterface.h"
 
 
-ULocomotionComponent::ULocomotionComponent()
+UAnimationControlComponent::UAnimationControlComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
 }
 
-void ULocomotionComponent::InitializeLocomotionComponent()
+void UAnimationControlComponent::InitializeLocomotionComponent()
 {
 	if (LayersAnimInstance == nullptr)
 	{
@@ -21,7 +21,7 @@ void ULocomotionComponent::InitializeLocomotionComponent()
 	SetCurrentWeaponType(EWeaponType::Unarmed);
 }
 
-void ULocomotionComponent::SetCurrentWeaponType(EWeaponType NewWeaponType)
+void UAnimationControlComponent::SetCurrentWeaponType(EWeaponType NewWeaponType)
 {
 	if (CurrentWeaponType == NewWeaponType) return;
 	
@@ -45,7 +45,7 @@ void ULocomotionComponent::SetCurrentWeaponType(EWeaponType NewWeaponType)
 	}
 }
 
-ACharacter* ULocomotionComponent::GetOwnerCharacter() const
+ACharacter* UAnimationControlComponent::GetOwnerCharacter() const
 {
 	AActor* Owner = GetOwner();
 	if (Owner == nullptr) return nullptr;
@@ -53,7 +53,7 @@ ACharacter* ULocomotionComponent::GetOwnerCharacter() const
 	return Cast<ACharacter>(Owner);
 }
 
-void ULocomotionComponent::LinkAnimClassLayers(TSubclassOf<UAnimInstance> AnimClass) const
+void UAnimationControlComponent::LinkAnimClassLayers(TSubclassOf<UAnimInstance> AnimClass) const
 {
 	if (AnimClass == nullptr) return;
 	const ACharacter* OwnerCharacter = GetOwnerCharacter();

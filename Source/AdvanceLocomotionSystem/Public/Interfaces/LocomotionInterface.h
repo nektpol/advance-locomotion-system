@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "LocomotionComponent.h"
+#include "AnimationControlComponent.h"
 #include "Enums/WeaponType.h"
 #include "UObject/Interface.h"
 #include "LocomotionInterface.generated.h"
