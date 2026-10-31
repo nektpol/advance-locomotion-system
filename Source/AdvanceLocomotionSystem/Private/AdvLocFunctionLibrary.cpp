@@ -1,7 +1,9 @@
 ﻿#include "AdvLocFunctionLibrary.h"
 
+#include "GameFramework/CharacterMovementComponent.h"
+
 UAnimSequence* UAdvLocFunctionLibrary::GetDirectionalAnimation(const FAdvLocDirectionalAnimationsPack& DirectionalAnimationsPack,
-	const EAdvLocLocomotionDirection Direction, const EAdvLocGait Gait, const EAdvLocStance Stance)
+                                                               const EAdvLocLocomotionDirection Direction, const EAdvLocGait Gait, const EAdvLocStance Stance)
 {
 	const FAdvLocDirectionalAnimations* Animations;
 
@@ -32,4 +34,17 @@ UAnimSequence* UAdvLocFunctionLibrary::GetDirectionalAnimation(const FAdvLocDire
 		case EAdvLocLocomotionDirection::Right: return Animations->RightAnimation.Get();
 		default: return nullptr;
 	}
+}
+
+FAdvLocStopPredictionData UAdvLocFunctionLibrary::GetStopPredictionData(UCharacterMovementComponent* CharacterMovement)
+{
+	FAdvLocStopPredictionData StopPredictionData = FAdvLocStopPredictionData();
+	if (!CharacterMovement) return StopPredictionData;
+	
+	StopPredictionData.bUseSeparateBrakingFriction = CharacterMovement->bUseSeparateBrakingFriction;
+	StopPredictionData.BrakingFriction = CharacterMovement->BrakingFriction;
+	StopPredictionData.GroundFriction = CharacterMovement->GroundFriction;
+	StopPredictionData.BrakingFrictionFactor = CharacterMovement->BrakingFrictionFactor;
+	StopPredictionData.BrakingDecelerationWalking = CharacterMovement->BrakingDecelerationWalking;
+	return StopPredictionData;
 }
