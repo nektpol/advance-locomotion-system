@@ -36,6 +36,32 @@ UAnimSequence* UAdvLocFunctionLibrary::GetDirectionalAnimation(const FAdvLocDire
 	}
 }
 
+UAnimSequence* UAdvLocFunctionLibrary::GetTurnInPlaceDirectionalAnimation(
+	const FAdvLocTurnInPlaceAnimationsPack& TurnInPlaceAnimationsPack,
+	const bool bShouldTurnLeft,
+	const float RootYawOffset,
+	const EAdvLocStance Stance,
+	const float ThresholdFor180Turn)
+{
+	const bool bTurn180 = FMath::Abs(FRotator::NormalizeAxis(RootYawOffset)) >= ThresholdFor180Turn;
+
+	const FAdvLocTurnInPlaceAnimations& Animations =
+		Stance == EAdvLocStance::Stand
+			? TurnInPlaceAnimationsPack.StandTurnInPlaceAnimations
+			: TurnInPlaceAnimationsPack.CrouchTurnInPlaceAnimations;
+
+	if (bShouldTurnLeft)
+	{
+		return bTurn180
+			? Animations.TurnInPlaceLeft180Animation.Get()
+			: Animations.TurnInPlaceLeft90Animation.Get();
+	}
+
+	return bTurn180
+		? Animations.TurnInPlaceRight180Animation.Get()
+		: Animations.TurnInPlaceRight90Animation.Get();
+}
+
 FAdvLocStopPredictionData UAdvLocFunctionLibrary::GetStopPredictionData(UCharacterMovementComponent* CharacterMovement)
 {
 	FAdvLocStopPredictionData StopPredictionData = FAdvLocStopPredictionData();

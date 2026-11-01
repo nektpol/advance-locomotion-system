@@ -25,6 +25,14 @@ public:
 		const EAdvLocStance Stance);
 	
 	UFUNCTION(BlueprintPure, Category = "AdvanceLocomotionSystem")
+	static UAnimSequence* GetTurnInPlaceDirectionalAnimation(
+		const FAdvLocTurnInPlaceAnimationsPack& TurnInPlaceAnimationsPack,
+		const bool bShouldTurnLeft,
+		const float RootYawOffset,
+		const EAdvLocStance Stance,
+		const float ThresholdFor180Turn = 135.f);
+	
+	UFUNCTION(BlueprintPure, Category = "AdvanceLocomotionSystem")
 	static FAdvLocStopPredictionData GetStopPredictionData(UCharacterMovementComponent* CharacterMovement);
 	
 	UFUNCTION(BlueprintPure, Category = "AdvanceLocomotionSystem")

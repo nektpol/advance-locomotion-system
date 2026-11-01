@@ -32,3 +32,33 @@ struct ADVANCELOCOMOTIONSYSTEM_API FAdvLocDirectionalAnimationsPack
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FAdvLocDirectionalAnimations CrouchJogDirectionalAnimations;
 };
+
+
+USTRUCT(BlueprintType)
+struct ADVANCELOCOMOTIONSYSTEM_API FAdvLocTurnInPlaceAnimations
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<UAnimSequence> TurnInPlaceLeft180Animation;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<UAnimSequence> TurnInPlaceLeft90Animation;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<UAnimSequence> TurnInPlaceRight180Animation;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<UAnimSequence> TurnInPlaceRight90Animation;
+};
+
+USTRUCT(BlueprintType)
+struct ADVANCELOCOMOTIONSYSTEM_API FAdvLocTurnInPlaceAnimationsPack
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FAdvLocTurnInPlaceAnimations StandTurnInPlaceAnimations;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FAdvLocTurnInPlaceAnimations CrouchTurnInPlaceAnimations;
+};
