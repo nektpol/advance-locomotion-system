@@ -26,19 +26,23 @@ public:
     UAdvLocAnimationControlComponent();
     virtual void BeginPlay() override;
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+    virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Animation|Setup")
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Animation|Setup")
     FComponentReference TargetMeshReference;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Animation|Registry")
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Animation|Registry")
     TObjectPtr<UAdvLocAnimationRegistry> RegistryOverride;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Animation|Profile")
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Animation|Profile")
     FGameplayTag InitialProfileTag;
     
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Animation|Debug")
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Animation|Debug")
     bool bEnableDebugMessages = true;
 
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Animation|Ground Detection", meta=(ClampMin="0.0"))
+    float MaxGroundDetectionDistance = 1000.f;
+    
     UFUNCTION(BlueprintCallable, Category="Animation|Profile")
     bool SetAnimationProfile(FGameplayTag ProfileTag);
 
@@ -55,10 +59,21 @@ public:
     UPROPERTY(BlueprintAssignable) FAdvLocStanceChanged OnStanceChanged;
     UPROPERTY(BlueprintAssignable) FAdvLocLocomotionStyleChanged OnLocomotionStyleChanged;
     
-    UFUNCTION(BlueprintCallable, Category="Animation|State") EAdvLocGait GetGait() const { return Gait; }
-    UFUNCTION(BlueprintCallable, Category="Animation|State") EAdvLocStance GetStance() const { return Stance; }
-    UFUNCTION(BlueprintCallable, Category="Animation|State") EAdvLocLocomotionStyle GetLocomotionStyle() const { return LocomotionStyle; }
-    UFUNCTION(BlueprintCallable, Category="Animation|State") FGameplayTag GetActiveProfileTag() const { return ActiveProfileTag; }
+    UFUNCTION(BlueprintCallable, Category="Animation|State") 
+    EAdvLocGait GetGait() const { return Gait; }
+    UFUNCTION(BlueprintCallable, Category="Animation|State") 
+    EAdvLocStance GetStance() const { return Stance; }
+    UFUNCTION(BlueprintCallable, Category="Animation|State") 
+    EAdvLocLocomotionStyle GetLocomotionStyle() const { return LocomotionStyle; }
+    UFUNCTION(BlueprintCallable, Category="Animation|State") 
+    FGameplayTag GetActiveProfileTag() const { return ActiveProfileTag; }
+    
+    UFUNCTION(BlueprintCallable, Category="Animation|Ground Detection")
+    float GetGroundDistance() const { return GroundDistance; }
+    UFUNCTION(BlueprintCallable, Category="Animation|Ground Detection")
+    bool HasGroundBelow() const { return bHasGroundBelow; }
+    UFUNCTION(BlueprintCallable, Category="Animation|Ground Detection")
+    bool IsGroundDetectionEnabled() const { return bEnableGroundDetection; }
 
 private:
     UPROPERTY(Transient)
@@ -78,6 +93,10 @@ private:
     EAdvLocLocomotionStyle LocomotionStyle = EAdvLocLocomotionStyle::Directional;
     FGameplayTag ActiveProfileTag;
     
+    float GroundDistance = 0.f;
+    bool bHasGroundBelow = false;
+    bool bEnableGroundDetection = true;
+    
     UPROPERTY()
     TSoftObjectPtr<UAdvLocAnimationRegistry> DefaultRegistry;
 
@@ -85,4 +104,9 @@ private:
     USkeletalMeshComponent* ResolveTargetMesh() const;
     UAdvLocAnimationRegistry* ResolveRegistry();
     void UnlinkActiveLayers();
+    
+    UFUNCTION()
+    void HandleMovementModeChanged(ACharacter* Character, EMovementMode PreviousMovementMode,uint8 PreviousCustomMode);
+    void SetGroundDetectionActive(bool bActive);
+    void UpdateGroundDistance();
 };

@@ -2,18 +2,21 @@
 
 #include "AdvLocAnimInstance.h"
 #include "Animation/AnimInstance.h"
+#include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Data/AdvLocAnimationRegistry.h"
 #include "Data/AdvLocResolvedAnimationProfile.h"
 #include "GameFramework/Actor.h"
 #include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "UObject/SoftObjectPath.h"
 
 DEFINE_LOG_CATEGORY(AdvLocLog);
 
 UAdvLocAnimationControlComponent::UAdvLocAnimationControlComponent()
 {
-    PrimaryComponentTick.bCanEverTick = false;
+    PrimaryComponentTick.bCanEverTick = true;
+    PrimaryComponentTick.bStartWithTickEnabled = false;
 
     DefaultRegistry = TSoftObjectPtr<UAdvLocAnimationRegistry>(FSoftObjectPath(TEXT("/AdvanceLocomotionSystem/Data/DA_AdvLoc_DefaultRegistry.DA_AdvLoc_DefaultRegistry")));
 }
@@ -65,6 +68,16 @@ void UAdvLocAnimationControlComponent::BeginPlay()
         UE_LOG(AdvLocLog, Error, TEXT("UAdvLocAnimationControlComponent::BeginPlay: No valid Animation Registry found for %s."), *GetNameSafe(GetOwner()));
         return;
     }
+    
+    if (ACharacter* Character = Cast<ACharacter>(GetOwner()))
+    {
+        Character->MovementModeChangedDelegate.AddUniqueDynamic(this, &UAdvLocAnimationControlComponent::HandleMovementModeChanged);
+
+        if (const UCharacterMovementComponent* CharacterMovement = Character->GetCharacterMovement())
+        {
+            SetGroundDetectionActive(CharacterMovement->IsFalling());
+        }
+    }
 
     SetAnimationProfile(InitialProfileTag);
 }
@@ -75,8 +88,25 @@ void UAdvLocAnimationControlComponent::EndPlay(const EEndPlayReason::Type EndPla
 
     ActiveRegistry = nullptr;
     ControlledMesh = nullptr;
+    
+    if (ACharacter* Character = Cast<ACharacter>(GetOwner()))
+    {
+        Character->MovementModeChangedDelegate.RemoveDynamic(
+            this,
+            &UAdvLocAnimationControlComponent::HandleMovementModeChanged
+        );
+    }
+
+    SetComponentTickEnabled(false);
 
     Super::EndPlay(EndPlayReason);
+}
+
+void UAdvLocAnimationControlComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+    Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+    
+    UpdateGroundDistance();
 }
 
 
@@ -142,6 +172,66 @@ void UAdvLocAnimationControlComponent::UnlinkActiveLayers()
     ActiveUpperBodyClass = nullptr;
     ActiveProfileTag = FGameplayTag();
 }
+
+void UAdvLocAnimationControlComponent::HandleMovementModeChanged(ACharacter* Character, EMovementMode PreviousMovementMode, uint8 PreviousCustomMode)
+{
+    if (!IsValid(Character)) return;
+
+    const UCharacterMovementComponent* CharacterMovement = Character->GetCharacterMovement();
+    if (!IsValid(CharacterMovement)) return;
+
+    SetGroundDetectionActive(CharacterMovement->IsFalling());
+}
+
+void UAdvLocAnimationControlComponent::SetGroundDetectionActive(bool bActive)
+{
+    bEnableGroundDetection = bActive;
+    SetComponentTickEnabled(bEnableGroundDetection);
+
+    if (bEnableGroundDetection)
+    {
+        UpdateGroundDistance();
+    }
+    else
+    {
+        GroundDistance = 0.f;
+        bHasGroundBelow = false;
+    }
+}
+
+
+void UAdvLocAnimationControlComponent::UpdateGroundDistance()
+{
+    GroundDistance = MaxGroundDetectionDistance;
+    bHasGroundBelow = false;
+
+    const ACharacter* Character = Cast<ACharacter>(GetOwner());
+    if (!IsValid(Character)) return;
+
+    const UCharacterMovementComponent* CharacterMovement = Character->GetCharacterMovement();
+    const UCapsuleComponent* Capsule = Character->GetCapsuleComponent();
+
+    if (!IsValid(CharacterMovement) || !IsValid(Capsule)) return;
+
+    const float TraceDistance = FMath::Max(0.f, MaxGroundDetectionDistance);
+    if (TraceDistance <= 0.f) return;
+
+    FFindFloorResult FloorResult;
+
+    CharacterMovement->ComputeFloorDist(
+        Capsule->GetComponentLocation(),
+        TraceDistance,
+        TraceDistance,
+        FloorResult,
+        Capsule->GetScaledCapsuleRadius()
+    );
+
+    if (!FloorResult.IsWalkableFloor()) return;
+
+    GroundDistance = FMath::Clamp(FloorResult.GetDistanceToFloor(), 0.f, TraceDistance);
+    bHasGroundBelow = true;
+}
+
 
 
 bool UAdvLocAnimationControlComponent::SetAnimationProfile(FGameplayTag ProfileTag)
