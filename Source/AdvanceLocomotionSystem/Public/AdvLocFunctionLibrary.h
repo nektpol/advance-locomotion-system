@@ -26,4 +26,7 @@ public:
 	
 	UFUNCTION(BlueprintPure, Category = "AdvanceLocomotionSystem")
 	static FAdvLocStopPredictionData GetStopPredictionData(UCharacterMovementComponent* CharacterMovement);
+	
+	UFUNCTION(BlueprintPure, Category = "AdvanceLocomotionSystem")
+	static FAdvLocPivotPredictionData GetPivotPredictionData(UCharacterMovementComponent* CharacterMovement);
 };

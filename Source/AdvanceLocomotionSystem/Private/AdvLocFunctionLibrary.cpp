@@ -41,10 +41,22 @@ FAdvLocStopPredictionData UAdvLocFunctionLibrary::GetStopPredictionData(UCharact
 	FAdvLocStopPredictionData StopPredictionData = FAdvLocStopPredictionData();
 	if (!CharacterMovement) return StopPredictionData;
 	
+	StopPredictionData.Velocity = CharacterMovement->Velocity;
 	StopPredictionData.bUseSeparateBrakingFriction = CharacterMovement->bUseSeparateBrakingFriction;
 	StopPredictionData.BrakingFriction = CharacterMovement->BrakingFriction;
 	StopPredictionData.GroundFriction = CharacterMovement->GroundFriction;
 	StopPredictionData.BrakingFrictionFactor = CharacterMovement->BrakingFrictionFactor;
 	StopPredictionData.BrakingDecelerationWalking = CharacterMovement->BrakingDecelerationWalking;
 	return StopPredictionData;
+}
+
+FAdvLocPivotPredictionData UAdvLocFunctionLibrary::GetPivotPredictionData(UCharacterMovementComponent* CharacterMovement)
+{
+	FAdvLocPivotPredictionData PivotPredictionData = FAdvLocPivotPredictionData();
+	if (!CharacterMovement) return PivotPredictionData;
+
+	PivotPredictionData.Acceleration = CharacterMovement->GetCurrentAcceleration();
+	PivotPredictionData.Velocity = CharacterMovement->Velocity;
+	PivotPredictionData.GroundFriction = CharacterMovement->GroundFriction;
+	return PivotPredictionData;
 }

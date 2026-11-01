@@ -26,7 +26,7 @@ protected:
 	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe = true))
 	EAdvLocLocomotionDirection CalculateLocomotionDirection(
 		EAdvLocLocomotionDirection CurrentLocomotionDirection,
-		const float VelocityLocomotionAngle,
+		const float CurrentLocomotionAngle,
 		const FAdvLocLocomotionDirectionSettings& Settings
 		);
 private:
