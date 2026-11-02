@@ -30,4 +30,7 @@ struct ADVANCELOCOMOTIONSYSTEM_API FAdvLocResolvedAnimationProfile
 
 	UPROPERTY(BlueprintReadOnly, Category = "Animation|Layers")
 	FGameplayTag UpperBodySourceTag;
+	
+	UPROPERTY(BlueprintReadOnly, Category = "Advance Locomotion|Animation")
+	bool bUseHandsLayer = false;
 };

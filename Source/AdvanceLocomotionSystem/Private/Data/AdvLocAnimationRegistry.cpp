@@ -66,7 +66,10 @@ FGameplayTag UAdvLocAnimationRegistry::GetEffectiveDefaultProfileTag() const
     return FGameplayTag();
 }
 
-bool UAdvLocAnimationRegistry::ResolveProfile(FGameplayTag RequestedProfileTag, FAdvLocResolvedAnimationProfile& OutResolvedProfile) const
+
+bool UAdvLocAnimationRegistry::ResolveProfile(
+    FGameplayTag RequestedProfileTag,
+    FAdvLocResolvedAnimationProfile& OutResolvedProfile) const
 {
     OutResolvedProfile = FAdvLocResolvedAnimationProfile();
 
@@ -84,7 +87,10 @@ bool UAdvLocAnimationRegistry::ResolveProfile(FGameplayTag RequestedProfileTag, 
 
         if (RequestedProfileTag.IsValid())
         {
-            UE_LOG(LogTemp, Warning, TEXT("AdvLoc: Profile %s not found. Trying default profile %s."), *RequestedProfileTag.ToString(), *SelectedProfileTag.ToString());
+            UE_LOG(LogTemp, Warning,
+                TEXT("AdvLoc: Profile %s not found. Trying default profile %s."),
+                *RequestedProfileTag.ToString(),
+                *SelectedProfileTag.ToString());
         }
     }
 
@@ -97,7 +103,9 @@ bool UAdvLocAnimationRegistry::ResolveProfile(FGameplayTag RequestedProfileTag, 
     {
         if (VisitedTags.Contains(CurrentTag))
         {
-            UE_LOG(LogTemp, Error, TEXT("AdvLoc: Circular profile fallback detected at %s."), *CurrentTag.ToString());
+            UE_LOG(LogTemp, Error,
+                TEXT("AdvLoc: Circular profile fallback detected at %s."),
+                *CurrentTag.ToString());
             return false;
         }
 
@@ -107,7 +115,9 @@ bool UAdvLocAnimationRegistry::ResolveProfile(FGameplayTag RequestedProfileTag, 
 
         if (!IsValid(CurrentProfile))
         {
-            UE_LOG(LogTemp, Error, TEXT("AdvLoc: Profile %s is missing from the fallback chain."), *CurrentTag.ToString());
+            UE_LOG(LogTemp, Error,
+                TEXT("AdvLoc: Profile %s is missing from the fallback chain."),
+                *CurrentTag.ToString());
             return false;
         }
 
@@ -118,19 +128,26 @@ bool UAdvLocAnimationRegistry::ResolveProfile(FGameplayTag RequestedProfileTag, 
     OutResolvedProfile.RequestedProfileTag = RequestedProfileTag;
     OutResolvedProfile.SelectedProfileTag = SelectedProfileTag;
 
+    // HandsLayer is controlled by the selected profile.
+    // It does not inherit its enabled state from fallback profiles.
+    OutResolvedProfile.bUseHandsLayer = ProfileChain[0]->bUseHandsLayer;
+
     bool bAllowUpperBodyInheritance = true;
 
     for (const UAdvLocAnimationProfile* Profile : ProfileChain)
     {
         OutResolvedProfile.ResolutionPath.Add(Profile->ProfileTag);
 
-        if (OutResolvedProfile.FullBodyLayerClass.IsNull() && !Profile->FullBodyLayerClass.IsNull())
+        if (OutResolvedProfile.FullBodyLayerClass.IsNull() &&
+            !Profile->FullBodyLayerClass.IsNull())
         {
             OutResolvedProfile.FullBodyLayerClass = Profile->FullBodyLayerClass;
             OutResolvedProfile.FullBodySourceTag = Profile->ProfileTag;
         }
 
-        if (bAllowUpperBodyInheritance && OutResolvedProfile.UpperBodyLayerClass.IsNull() && !Profile->UpperBodyLayerClass.IsNull())
+        if (bAllowUpperBodyInheritance &&
+            OutResolvedProfile.UpperBodyLayerClass.IsNull() &&
+            !Profile->UpperBodyLayerClass.IsNull())
         {
             OutResolvedProfile.UpperBodyLayerClass = Profile->UpperBodyLayerClass;
             OutResolvedProfile.UpperBodySourceTag = Profile->ProfileTag;
@@ -144,4 +161,5 @@ bool UAdvLocAnimationRegistry::ResolveProfile(FGameplayTag RequestedProfileTag, 
 
     return true;
 }
+
 

@@ -306,6 +306,7 @@ bool UAdvLocAnimationControlComponent::SetAnimationProfile(FGameplayTag ProfileT
 
     if (ActiveProfileTag == ResolvedProfile.SelectedProfileTag && ActiveFullBodyClass == NewFullBodyClass && ActiveUpperBodyClass == NewUpperBodyClass)
     {
+        bUseHandsLayer = ResolvedProfile.bUseHandsLayer;
         return true;
     }
 
@@ -321,6 +322,7 @@ bool UAdvLocAnimationControlComponent::SetAnimationProfile(FGameplayTag ProfileT
     ActiveFullBodyClass = NewFullBodyClass;
     ActiveUpperBodyClass = NewUpperBodyClass;
     ActiveProfileTag = ResolvedProfile.SelectedProfileTag;
+    bUseHandsLayer = ResolvedProfile.bUseHandsLayer;
 
     if (bEnableDebugMessages && GEngine)
     {

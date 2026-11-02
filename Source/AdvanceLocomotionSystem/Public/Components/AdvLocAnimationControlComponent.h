@@ -67,6 +67,8 @@ public:
     EAdvLocLocomotionStyle GetLocomotionStyle() const { return LocomotionStyle; }
     UFUNCTION(BlueprintCallable, Category="Animation|State") 
     FGameplayTag GetActiveProfileTag() const { return ActiveProfileTag; }
+    UFUNCTION(BlueprintCallable, Category="Animation|Ground Detection")
+    bool UseHandsLayer() const { return bUseHandsLayer; }
     
     UFUNCTION(BlueprintCallable, Category="Animation|Ground Detection")
     float GetGroundDistance() const { return GroundDistance; }
@@ -96,6 +98,7 @@ private:
     float GroundDistance = 0.f;
     bool bHasGroundBelow = false;
     bool bEnableGroundDetection = true;
+    bool bUseHandsLayer = false;
     
     UPROPERTY()
     TSoftObjectPtr<UAdvLocAnimationRegistry> DefaultRegistry;

@@ -28,4 +28,7 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animation|Layers")
 	bool bInheritUpperBodyLayer = true;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animation|Layers")
+	bool bUseHandsLayer = false;
 };
