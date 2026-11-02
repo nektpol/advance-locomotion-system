@@ -1,7 +1,23 @@
 #include "AdvLocAnimInstance.h"
 
+#include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
+
+void UAdvLocAnimInstance::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
+{
+	Super::NativeThreadSafeUpdateAnimation(DeltaSeconds);
+}
+
+void UAdvLocAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
+{
+	Super::NativeUpdateAnimation(DeltaSeconds);
+	
+	const ACharacter* Character = Cast<ACharacter>(TryGetPawnOwner());
+	bHasCharacterMovement = IsValid(Character) && IsValid(Character->GetCharacterMovement());
+}
+
 EAdvLocLocomotionDirection UAdvLocAnimInstance::CalculateLocomotionDirection(EAdvLocLocomotionDirection CurrentLocomotionDirection,
-	const float CurrentLocomotionAngle, const FAdvLocLocomotionDirectionSettings& Settings)
+                                                                             const float CurrentLocomotionAngle, const FAdvLocLocomotionDirectionSettings& Settings)
 {
 	switch (CurrentLocomotionDirection)
 	{
@@ -28,3 +44,5 @@ EAdvLocLocomotionDirection UAdvLocAnimInstance::CalculateLocomotionDirection(EAd
 
 	return EAdvLocLocomotionDirection::Left;
 }
+
+

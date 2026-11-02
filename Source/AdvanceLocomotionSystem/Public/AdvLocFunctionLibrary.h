@@ -33,6 +33,9 @@ public:
 		const float ThresholdFor180Turn = 135.f);
 	
 	UFUNCTION(BlueprintPure, Category = "AdvanceLocomotionSystem")
+	static EAdvLocLocomotionDirection GetInverseDirection(const EAdvLocLocomotionDirection Direction);
+	
+	UFUNCTION(BlueprintPure, Category = "AdvanceLocomotionSystem")
 	static FAdvLocStopPredictionData GetStopPredictionData(UCharacterMovementComponent* CharacterMovement);
 	
 	UFUNCTION(BlueprintPure, Category = "AdvanceLocomotionSystem")

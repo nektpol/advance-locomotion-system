@@ -62,6 +62,22 @@ UAnimSequence* UAdvLocFunctionLibrary::GetTurnInPlaceDirectionalAnimation(
 		: Animations.TurnInPlaceRight90Animation.Get();
 }
 
+EAdvLocLocomotionDirection UAdvLocFunctionLibrary::GetInverseDirection(const EAdvLocLocomotionDirection Direction)
+{
+	switch(Direction) {
+	case EAdvLocLocomotionDirection::Backward:
+		return EAdvLocLocomotionDirection::Forward;
+	case EAdvLocLocomotionDirection::Forward:
+		return EAdvLocLocomotionDirection::Backward;
+	case EAdvLocLocomotionDirection::Left:
+		return EAdvLocLocomotionDirection::Right;
+	case EAdvLocLocomotionDirection::Right:
+		return EAdvLocLocomotionDirection::Left;
+	}
+	
+	return EAdvLocLocomotionDirection::Forward;
+}
+
 FAdvLocStopPredictionData UAdvLocFunctionLibrary::GetStopPredictionData(UCharacterMovementComponent* CharacterMovement)
 {
 	FAdvLocStopPredictionData StopPredictionData = FAdvLocStopPredictionData();
