@@ -104,6 +104,7 @@ void UAdvLocAnimationControlComponent::SetSettingsOnOwnerCharacter()
     if (!IsValid(Pawn)) return;
 
     Pawn->bUseControllerRotationYaw = true;
+    Pawn->bUseControllerRotationPitch = true;
 }
 
 USkeletalMeshComponent* UAdvLocAnimationControlComponent::ResolveTargetMesh() const
