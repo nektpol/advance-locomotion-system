@@ -36,6 +36,10 @@ public:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Animation|Profile")
     FGameplayTag InitialProfileTag;
+
+    /** Disable for visual actors that receive their mesh and profile after BeginPlay. */
+    UPROPERTY(EditDefaultsOnly, Category="Animation|Setup")
+    bool bInitializeOnBeginPlay = true;
     
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Animation|Debug")
     bool bEnableDebugMessages = true;
@@ -82,17 +86,14 @@ private:
     TObjectPtr<USkeletalMeshComponent> ControlledMesh;
 
     UPROPERTY(Transient)
-    TObjectPtr<UAdvLocAnimationRegistry> ActiveRegistry;
-
-    UPROPERTY(Transient)
     TSubclassOf<UAnimInstance> ActiveFullBodyClass;
 
     UPROPERTY(Transient)
     TSubclassOf<UAnimInstance> ActiveUpperBodyClass;
     
-    EAdvLocGait Gait = EAdvLocGait::Walk;
-    EAdvLocStance Stance = EAdvLocStance::Stand;
-    EAdvLocLocomotionStyle LocomotionStyle = EAdvLocLocomotionStyle::Directional;
+    EAdvLocGait Gait = EAdvLocGait::None;
+    EAdvLocStance Stance = EAdvLocStance::Undefined;
+    EAdvLocLocomotionStyle LocomotionStyle = EAdvLocLocomotionStyle::Undefined;
     FGameplayTag ActiveProfileTag;
     
     float GroundDistance = 0.f;

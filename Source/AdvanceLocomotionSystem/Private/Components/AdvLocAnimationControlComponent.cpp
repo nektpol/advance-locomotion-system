@@ -18,12 +18,18 @@ UAdvLocAnimationControlComponent::UAdvLocAnimationControlComponent()
     PrimaryComponentTick.bCanEverTick = true;
     PrimaryComponentTick.bStartWithTickEnabled = false;
 
-    DefaultRegistry = TSoftObjectPtr<UAdvLocAnimationRegistry>(FSoftObjectPath(TEXT("/AdvanceLocomotionSystem/Data/DA_AdvLoc_DefaultRegistry.DA_AdvLoc_DefaultRegistry")));
+    DefaultRegistry = TSoftObjectPtr<UAdvLocAnimationRegistry>(FSoftObjectPath(TEXT("/AdvanceLocomotionSystem/Data/DA_AdvLocDefaultRegistry.DA_AdvLocDefaultRegistry")));
 }
 
 void UAdvLocAnimationControlComponent::BeginPlay()
 {
     Super::BeginPlay();
+
+    if (!bInitializeOnBeginPlay)
+    {
+        SetGroundDetectionActive(false);
+        return;
+    }
 
     ControlledMesh = ResolveTargetMesh();
 
@@ -49,26 +55,6 @@ void UAdvLocAnimationControlComponent::BeginPlay()
         UE_LOG(AdvLocLog, Error, TEXT("UAdvLocAnimationControlComponent::BeginPlay: Skeletal Mesh on %s has no active Animation Blueprint."), *GetNameSafe(GetOwner()));
         return;
     }
-    UAdvLocAnimInstance* AnimInstance = Cast<UAdvLocAnimInstance>(ControlledMesh->GetAnimInstance());
-
-    if (IsValid(AnimInstance))
-    {
-        AnimInstance->SetAnimationControlComponent(this);
-    }
-
-    ActiveRegistry = ResolveRegistry();
-
-    if (!IsValid(ActiveRegistry))
-    {
-        if (bEnableDebugMessages && GEngine)
-        {
-            GEngine->AddOnScreenDebugMessage(102, 10.f, FColor::Red, 
-                FString::Printf(TEXT("UAdvLocAnimationControlComponent::BeginPlay: No valid Animation Registry found for %s."), *GetNameSafe(GetOwner())));
-        }
-        UE_LOG(AdvLocLog, Error, TEXT("UAdvLocAnimationControlComponent::BeginPlay: No valid Animation Registry found for %s."), *GetNameSafe(GetOwner()));
-        return;
-    }
-    
     if (ACharacter* Character = Cast<ACharacter>(GetOwner()))
     {
         Character->MovementModeChangedDelegate.AddUniqueDynamic(this, &UAdvLocAnimationControlComponent::HandleMovementModeChanged);
@@ -86,7 +72,6 @@ void UAdvLocAnimationControlComponent::EndPlay(const EEndPlayReason::Type EndPla
 {
     UnlinkActiveLayers();
 
-    ActiveRegistry = nullptr;
     ControlledMesh = nullptr;
     
     if (ACharacter* Character = Cast<ACharacter>(GetOwner()))
@@ -236,22 +221,32 @@ void UAdvLocAnimationControlComponent::UpdateGroundDistance()
 
 bool UAdvLocAnimationControlComponent::SetAnimationProfile(FGameplayTag ProfileTag)
 {
-    if (!IsValid(ControlledMesh) || !IsValid(ActiveRegistry)) return false;
-
-    if (!IsValid(ControlledMesh->GetAnimInstance()))
+    USkeletalMeshComponent* Mesh = ResolveTargetMesh();
+    if (ControlledMesh != Mesh)
     {
-        if (bEnableDebugMessages && GEngine)
-        {
-            GEngine->AddOnScreenDebugMessage(104, 10.f, FColor::Red, 
-                FString::Printf(TEXT("UAdvLocAnimationControlComponent::SetAnimationProfile: Cannot apply a profile without an active Animation Blueprint.")));
-        }
-        UE_LOG(AdvLocLog, Error, TEXT("UAdvLocAnimationControlComponent::SetAnimationProfile: Cannot apply a profile without an active Animation Blueprint."));
+        UnlinkActiveLayers();
+        ControlledMesh = Mesh;
+    }
+    if (!IsValid(ControlledMesh)) return false;
+
+    UAnimInstance* MeshAnimInstance = ControlledMesh->GetAnimInstance();
+    if (!IsValid(MeshAnimInstance)) return false;
+
+    if (auto* AnimInstance = Cast<UAdvLocAnimInstance>(MeshAnimInstance))
+    {
+        AnimInstance->SetAnimationControlComponent(this);
+    }
+
+    const UAdvLocAnimationRegistry* Registry = ResolveRegistry();
+    if (!IsValid(Registry))
+    {
+        UE_LOG(AdvLocLog, Error, TEXT("UAdvLocAnimationControlComponent::SetAnimationProfile: No valid Animation Registry found for %s."), *GetNameSafe(GetOwner()));
         return false;
     }
 
     FAdvLocResolvedAnimationProfile ResolvedProfile;
 
-    if (!ActiveRegistry->ResolveProfile(ProfileTag, ResolvedProfile))
+    if (!Registry->ResolveProfile(ProfileTag, ResolvedProfile))
     {
         if (bEnableDebugMessages && GEngine)
         {
@@ -304,7 +299,10 @@ bool UAdvLocAnimationControlComponent::SetAnimationProfile(FGameplayTag ProfileT
         }
     }
 
-    if (ActiveProfileTag == ResolvedProfile.SelectedProfileTag && ActiveFullBodyClass == NewFullBodyClass && ActiveUpperBodyClass == NewUpperBodyClass)
+    // Mesh or Anim Blueprint swaps can discard the linked instances without changing the selected tag.
+    if (ActiveProfileTag == ResolvedProfile.SelectedProfileTag && ActiveFullBodyClass == NewFullBodyClass && ActiveUpperBodyClass == NewUpperBodyClass
+        && ControlledMesh->GetLinkedAnimLayerInstanceByClass(NewFullBodyClass)
+        && (!NewUpperBodyClass || ControlledMesh->GetLinkedAnimLayerInstanceByClass(NewUpperBodyClass)))
     {
         bUseHandsLayer = ResolvedProfile.bUseHandsLayer;
         return true;

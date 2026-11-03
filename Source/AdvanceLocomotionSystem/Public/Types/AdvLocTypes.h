@@ -6,6 +6,7 @@
 UENUM(BlueprintType)
 enum class EAdvLocGait : uint8
 {
+	None,
 	Walk,
 	Jog,
 };
@@ -13,6 +14,7 @@ enum class EAdvLocGait : uint8
 UENUM(BlueprintType)
 enum class EAdvLocStance : uint8
 {
+	Undefined,
 	Stand,
 	Crouch
 };
@@ -20,6 +22,7 @@ enum class EAdvLocStance : uint8
 UENUM(BlueprintType)
 enum class EAdvLocLocomotionStyle : uint8
 {
+	Undefined,
 	Forward,
 	Directional
 };
