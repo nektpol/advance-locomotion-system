@@ -6,4 +6,5 @@ namespace AdvLoc::Profile
 	UE_DEFINE_GAMEPLAY_TAG(Pistol, "AdvLoc.Profile.Pistol");
 	UE_DEFINE_GAMEPLAY_TAG(Rifle, "AdvLoc.Profile.Rifle");
 	UE_DEFINE_GAMEPLAY_TAG(Shotgun, "AdvLoc.Profile.Shotgun");
+	UE_DEFINE_GAMEPLAY_TAG(MeleeTwoHanded, "AdvLoc.Profile.MeleeTwoHanded");
 }
